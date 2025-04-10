@@ -30,6 +30,12 @@ app.get('/info', (require, response) => {
   )
 })
 
+app.get('/api/persons/:id', (require, response) => {
+  const id = require.params.id
+  const person = persons.find(person => person.id === id)
+  response.send(person)
+})
+
 PORT = 3001
 app.listen(PORT, () => {
   console.log(`listening on port ${PORT}`)
