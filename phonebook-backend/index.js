@@ -1,5 +1,6 @@
 const express = require('express')
 const app = express()
+app.use(express.json())
 
 let persons = [
   {
@@ -19,19 +20,19 @@ let persons = [
   }
 ]
 
-app.get('/api/persons', (require, response) => {
+app.get('/api/persons', (request, response) => {
   response.send(persons)
 })
 
-app.get('/info', (require, response) => {
+app.get('/info', (request, response) => {
   response.send(`
     <p>Phonebook as info for ${persons.length} people</p>
     <p>${new Date()}</p>`
   )
 })
 
-app.get('/api/persons/:id', (require, response) => {
-  const id = require.params.id
+app.get('/api/persons/:id', (request, response) => {
+  const id = request.params.id
   const person = persons.find(person => person.id === id)
   if (person) {
     response.send(person)
@@ -40,10 +41,24 @@ app.get('/api/persons/:id', (require, response) => {
   }
 })
 
-app.delete('/api/persons/:id', (require, response) => {
-  const id = require.params.id
+app.delete('/api/persons/:id', (request, response) => {
+  const id = request.params.id
   persons = persons.filter(person => person.id !== id)
   response.end()
+})
+
+app.post('/api/persons', (request, response) => {
+  const body = request.body
+
+  const person = {
+    "id": body.id,
+    "name": body.name,
+    "number": body.number
+  }
+
+  persons = persons.concat(person)
+
+  response.send(person)
 })
 
 PORT = 3001
