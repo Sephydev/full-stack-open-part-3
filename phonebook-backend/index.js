@@ -50,8 +50,20 @@ app.delete('/api/persons/:id', (request, response) => {
 app.post('/api/persons', (request, response) => {
   const body = request.body
 
+  if (!body.name) {
+    return response.status(400).send({ error: 'name is missing' })
+  }
+
+  if (!body.number) {
+    return response.status(400).send({ error: 'number is missing' })
+  }
+
+  if (persons.find(person => person.name.toLowerCase() === body.name.toLowerCase())) {
+    return response.status(400).send({ error: 'name already in phonebook' })
+  }
+
   const person = {
-    "id": body.id,
+    "id": Math.floor(Math.random() * 1000000),
     "name": body.name,
     "number": body.number
   }
