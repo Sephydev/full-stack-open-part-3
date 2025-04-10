@@ -23,6 +23,13 @@ app.get('/api/persons', (require, response) => {
   response.send(persons)
 })
 
+app.get('/info', (require, response) => {
+  response.send(`
+    <p>Phonebook as info for ${persons.length} people</p>
+    <p>${new Date()}</p>`
+  )
+})
+
 PORT = 3001
 app.listen(PORT, () => {
   console.log(`listening on port ${PORT}`)
