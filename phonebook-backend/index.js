@@ -33,7 +33,11 @@ app.get('/info', (require, response) => {
 app.get('/api/persons/:id', (require, response) => {
   const id = require.params.id
   const person = persons.find(person => person.id === id)
-  response.send(person)
+  if (person) {
+    response.send(person)
+  } else {
+    response.status(404).end()
+  }
 })
 
 app.delete('/api/persons/:id', (require, response) => {
