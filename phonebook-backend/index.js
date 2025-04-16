@@ -82,6 +82,18 @@ app.post('/api/persons', (request, response) => {
   person.save().then(person => response.send(person))
 })
 
+const errorHandler = (error, request, response, next) => {
+  console.log(error.message)
+
+  if (error.name === 'CastError') {
+    response.status(400).send({ error: 'malformed id' })
+  }
+
+  next(error)
+}
+
+app.use(errorHandler)
+
 PORT = process.env.PORT
 app.listen(PORT, () => {
   console.log(`listening on port ${PORT}`)
