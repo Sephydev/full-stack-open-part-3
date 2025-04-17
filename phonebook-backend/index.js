@@ -37,20 +37,23 @@ app.get('/api/persons', (request, response) => {
 })
 
 app.get('/info', (request, response) => {
-  response.send(`
-    <p>Phonebook as info for ${Person.length} people</p>
-    <p>${new Date()}</p>`
-  )
+  Person.find({}).then(persons => {
+    response.send(`
+      <p>Phonebook as info for ${persons.length} people</p>
+      <p>${new Date()}</p>`)
+  })
 })
 
-app.get('/api/persons/:id', (request, response) => {
+app.get('/api/persons/:id', (request, response, next) => {
   const id = request.params.id
-  const person = persons.find(person => person.id === id)
-  if (person) {
-    response.send(person)
-  } else {
-    response.status(404).end()
-  }
+  Person.findById(id).then(person => {
+    if (person) {
+      response.json(person)
+    } else {
+      response.status(404).end()
+    }
+  })
+    .catch(error => next(error))
 })
 
 app.delete('/api/persons/:id', (request, response, next) => {
@@ -70,16 +73,24 @@ app.post('/api/persons', (request, response) => {
     return response.status(400).send({ error: 'number is missing' })
   }
 
-  if (persons.find(person => person.name.toLowerCase() === body.name.toLowerCase())) {
-    return response.status(400).send({ error: 'name already in phonebook' })
-  }
-
   const person = new Person({
     "name": body.name,
     "number": body.number
   })
 
   person.save().then(person => response.send(person))
+})
+
+app.put('/api/persons/:id', (request, response, next) => {
+  Person.findById(request.params.id).then(person => {
+    console.log(request.body)
+
+    person.name = request.body.name
+    person.number = request.body.number
+
+    person.save().then(updatedPerson => response.json(updatedPerson))
+  })
+    .catch((error) => next(error))
 })
 
 const errorHandler = (error, request, response, next) => {
