@@ -62,7 +62,7 @@ app.delete('/api/persons/:id', (request, response, next) => {
     .catch((error) => next(error))
 })
 
-app.post('/api/persons', (request, response) => {
+app.post('/api/persons', (request, response, next) => {
   const body = request.body
 
   if (!body.name) {
@@ -78,19 +78,24 @@ app.post('/api/persons', (request, response) => {
     "number": body.number
   })
 
-  person.save().then(person => response.send(person))
+  person.save()
+    .then(person => response.send(person))
+    .catch(error => next(error))
 })
 
 app.put('/api/persons/:id', (request, response, next) => {
-  Person.findById(request.params.id).then(person => {
-    console.log(request.body)
+  Person
+    .findById(request.params.id).then(person => {
+      console.log(request.body)
 
-    person.name = request.body.name
-    person.number = request.body.number
+      person.name = request.body.name
+      person.number = request.body.number
 
-    person.save().then(updatedPerson => response.json(updatedPerson))
-  })
-    .catch((error) => next(error))
+      person
+        .save()
+        .then(updatedPerson => response.json(updatedPerson))
+        .catch((error) => next(error))
+    }, { runValidators: true })
 })
 
 const errorHandler = (error, request, response, next) => {
@@ -98,6 +103,8 @@ const errorHandler = (error, request, response, next) => {
 
   if (error.name === 'CastError') {
     response.status(400).send({ error: 'malformed id' })
+  } else if (error.name === 'ValidationError') {
+    response.status(400).json({ error: error.message })
   }
 
   next(error)
